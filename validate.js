@@ -1,5 +1,3 @@
-// id [0],title[1],privacy[2],total_plays[3],total_comments[4],total_likes [5]
-
 const fs = require('fs');
 
 /*= ===== writes data to file  ====== */

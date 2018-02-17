@@ -16,7 +16,7 @@
     "sinon": "^4.3.0"
   },
   "scripts": {
-    "start":"node index.js" ,
+    "start": "node index.js data/clips.csv",
     "test": "mocha test/challenge-test.js"
   },
   "repository": {
