@@ -4,9 +4,13 @@ const fs = require('fs');
 
 /*= ===== writes data to file  ====== */
 function writeTo(data, fileName) {
-  fs.appendFile(fileName, data, (err) => {
-    if (err) throw err;
-  });
+  if (data && fileName) {
+    fs.appendFile(fileName, data, (err) => {
+      if (err) throw err;
+    });
+  } else {
+     console.log('no data or fileName was passed in');
+  }
 }
 
 /*= ===== checks for valid parameters  ====== */
@@ -14,7 +18,14 @@ function isValid(entry) {
   const final = entry.split(',');
 
   // checks for parameters specified by coding challenge && clip_id must be a valid number from 1 -> MAX_INT
-  if ((Number(final[0]) && Number(final[0]) > 0) && final[1].length < 30 && final[2] === 'anybody' && final[3] > 200 && final[5] > 10) {
+  if (
+    Number(final[0]) &&
+    Number(final[0]) > 0 &&
+    final[1].length < 30 &&
+    final[2] === 'anybody' &&
+    final[3] > 200 &&
+    final[5] > 10
+  ) {
     return { id: final[0], tag: 'valid' };
   }
   return { id: final[0], tag: 'invalid' };

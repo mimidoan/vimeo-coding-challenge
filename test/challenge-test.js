@@ -1,11 +1,8 @@
 const chai = require('chai');
 
 const expect = chai.expect;
-const fs = require('fs');
-require('mocha');
+require('mocha-sinon');
 const valid = require('../validate.js');
-const index = require('../index.js');
-
 
 const invalidObj = { id: '200019', tag: 'invalid' };
 const validObj = { id: '200111', tag: 'valid' };
@@ -39,8 +36,14 @@ const csvData = [
   '200354,Musical 5 X 5 X Ctd3,anybody,125,10,7',
 ];
 
-describe('validate.js', () => {
+function mockConsoleOutput() {
+  const log = console.log;
+  this.sinon.stub(console, 'log').callsFake(function () {
+    return log.apply(log, arguments);
+  });
+}
 
+describe('isValid()', () => {
   it('isValid() returns VALID clip with VALID tag and clip_id', () => {
     expect(valid.isValid('200111,5 Memorial Weekend Vignettes,anybody,689,24,21')).to.deep.equal(validObj);
   });
@@ -48,13 +51,9 @@ describe('validate.js', () => {
   it('isValid() returns INVALID clip with INVALID tag and clip_id', () => {
     expect(valid.isValid('200019,Drift Day,users,205,10,6')).to.deep.equal(invalidObj);
   });
+});
 
-  it('writeTo(), wrapper for appends to a pre-existing text file or creates a new one if it does not exist', () => {
-    fs.appendFile('../data/invalid.csv', invalidObj, (err) => {
-      expect(err).to.be.null;
-    });
-  });
-
+describe('Processing Data', () => {
   it('processValid() should return an array of Valid clips', () => {
     expect(valid.processValid(csvData)).to.deep.equal(validProcessed);
   });
@@ -64,5 +63,22 @@ describe('validate.js', () => {
   });
 });
 
-// invalid: 200019,Drift Day,users,205,10,6
-// valid: 200111,5 Memorial Weekend Vignettes,anybody,689,24,21
+describe('writeTo()', () => {
+  beforeEach(mockConsoleOutput);
+
+  it('writeTo(), log error if no parameters are passed in', () => {
+    valid.writeTo();
+    expect(console.log.callCount).to.equal(1);
+    expect(console.log.calledWith('no data or fileName was passed in')).to.be.true;
+  });
+
+  it('writeTo(), log error if < 2 parameters are passed in', () => {
+    valid.writeTo('heyheyhey');
+    expect(console.log.callCount).to.equal(1);
+    expect(console.log.calledWith('no data or fileName was passed in')).to.be.true;
+  });
+
+  it('writeTo(), expect undefined to be returned if all is well', () => {
+    expect(valid.writeTo('data,', 'data/testFile.csv')).to.be.undefined;
+  });
+});
